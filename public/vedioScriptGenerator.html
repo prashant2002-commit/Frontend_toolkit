@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Script Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(26, 32, 44, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(74, 85, 104, 0.5);
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(74, 85, 104, 0.5);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #cbd5e0;
+        }
+        
+        .app-container {
+            display: flex;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .sidebar {
+            flex: 1;
+            background: rgba(45, 55, 72, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(74, 85, 104, 0.3);
+        }
+        
+        .sidebar h2 {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .main-content {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content h2 {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #cbd5e0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        .form-control:focus {
+            border-color: #6e8efb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.3);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #6e8efb;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #5a7dfa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(110, 142, 251, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #a777e3;
+            color: white;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #9566d3;
+            box-shadow: 0 4px 12px rgba(167, 119, 227, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .script-output {
+            flex: 1;
+            border: 2px solid #4a5568;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: 500px;
+            background: #2d3748;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #e2e8f0;
+        }
+        
+        .script-line {
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid #6e8efb;
+        }
+        
+        .time-stamp {
+            font-weight: bold;
+            color: #6e8efb;
+            margin-bottom: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #38a169;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification.error {
+            background: #e53e3e;
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #4a5568;
+            border-top: 4px solid #6e8efb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+        
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-secondary {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Video Script Generator</h1>
+            <p>Create professional video scripts with accurate time stamps</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="sidebar">
+                <h2>Script Settings</h2>
+                
+                <div class="form-group">
+                    <label for="videoType">Video Type</label>
+                    <select id="videoType" class="form-control">
+                        <option value="explainer">Explainer Video</option>
+                        <option value="tutorial">Tutorial</option>
+                        <option value="promo">Promotional Video</option>
+                        <option value="documentary">Documentary</option>
+                        <option value="presentation">Business Presentation</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoTopic">Video Topic</label>
+                    <input type="text" id="videoTopic" class="form-control" placeholder="e.g., How to use our product" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalContext">Additional Context (Optional)</label>
+                    <textarea id="additionalContext" class="form-control" placeholder="Any specific points to include, target audience, etc."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoLength">Video Length</label>
+                    <select id="videoLength" class="form-control">
+                        <option value="2 minutes">2 minute</option>
+                        <option value="5 minutes" selected>5 minutes</option>
+                        <option value="10 minutes">10 minutes</option>
+                        <option value="15 minutes">15 minutes</option>
+                        <option value="25 minutes">25 minutes</option>
+                        <option value="30 minutes">30 minutes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tone">Tone of Voice</label>
+                    <select id="tone" class="form-control">
+                        <option value="professional">Professional</option>
+                        <option value="friendly" selected>Friendly</option>
+                        <option value="energetic">Energetic</option>
+                        <option value="humorous">Humorous</option>
+                        <option value="inspirational">Inspirational</option>
+                    </select>
+                </div>
+                
+                <button id="generateBtn" class="btn btn-primary">
+                    <i class="fas fa-robot"></i> Generate Script
+                </button>
+                
+            </div>
+            
+            <div class="main-content">
+                <h2>Generated Script</h2>
+                <div class="script-output" id="scriptOutput">
+                    <div class="loading" id="loadingIndicator" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>AI is generating your script...</p>
+                    </div>
+                    <div id="scriptContent">
+                        <div class="empty-state">
+                            <i class="fas fa-film fa-3x mb-4"></i>
+                            <p>Your script will appear here after generation</p>
+                            <p class="text-sm mt-2">Enter your video details and click "Generate Script"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="regenerateBtn" class="btn btn-secondary" style="display: none;">
+                        <i class="fas fa-sync-alt"></i> Regenerate
+                    </button>
+                    <button id="exportBtn" class="btn btn-secondary" style="display: none;">
+                        <i class="fas fa-download"></i> Export Script
+                    </button>
+                    <button id="copyBtn" class="btn btn-secondary" style="display: none;">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Script copied to clipboard!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateBtn');
+            const regenerateBtn = document.getElementById('regenerateBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const scriptOutput = document.getElementById('scriptOutput');
+            const scriptContent = document.getElementById('scriptContent');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const notification = document.getElementById('notification');
+            
+            // Generate script by calling your Node.js backend
+            generateBtn.addEventListener('click', generateScript);
+            regenerateBtn.addEventListener('click', generateScript);
+            
+            async function generateScript() {
+                const videoType = document.getElementById('videoType').value;
+                const videoTopic = document.getElementById('videoTopic').value;
+                const additionalContext = document.getElementById('additionalContext').value;
+                const videoLength = parseInt(document.getElementById('videoLength').value);
+                const tone = document.getElementById('tone').value;
+                
+                if (!videoTopic) {
+                    showNotification('Please enter a video topic', true);
+                    return;
+                }
+                
+                // Show loading state
+                scriptContent.innerHTML = '';
+                loadingIndicator.style.display = 'flex';
+                generateBtn.disabled = true;
+                regenerateBtn.style.display = 'none';
+                exportBtn.style.display = 'none';
+                copyBtn.style.display = 'none';
+                
+                try {
+                    // Call your Node.js backend API
+                    const response = await fetch('/api/generate-script', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            videoType,
+                            videoTopic,
+                            additionalContext,
+                            videoLength,
+                            tone
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Server error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Display the generated script
+                    displayScript(data.script);
+                    
+                    // Show action buttons
+                    regenerateBtn.style.display = 'block';
+                    exportBtn.style.display = 'block';
+                    copyBtn.style.display = 'block';
+                    
+                    showNotification('Script generated successfully!');
+                } catch (error) {
+                    console.error("API call failed:", error);
+                    showNotification('Failed to generate script: ' + error.message, true);
+                    
+                    // Reset to empty state
+                    scriptContent.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-4"></i>
+                            <p>Failed to generate script</p>
+                            <p class="text-sm mt-2">${error.message || 'Please try again'}</p>
+                        </div>
+                    `;
+                } finally {
+                    // Hide loading state
+                    loadingIndicator.style.display = 'none';
+                    generateBtn.disabled = false;
+                }
+            }
+            
+            function displayScript(scriptText) {
+                scriptContent.innerHTML = '';
+                
+                if (!scriptText) {
+                    scriptContent.innerHTML = '<div class="empty-state"><p>No script was generated. Please try again.</p></div>';
+                    return;
+                }
+                
+                // Create a simple formatting for the script
+                const lines = scriptText.split('\n').filter(line => line.trim());
+                
+                lines.forEach(line => {
+                    const lineElement = document.createElement('div');
+                    lineElement.className = 'script-line';
+                    
+                    // Check if the line contains a timestamp
+                    const timeMatch = line.match(/\[(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})\]/i);
+                    
+                    if (timeMatch) {
+                        lineElement.innerHTML = `
+                            <div class="time-stamp">[${timeMatch[1]}]</div>
+                            <div class="dialogue">${line.replace(timeMatch[0], '').trim()}</div>
+                        `;
+                    } else {
+                        lineElement.innerHTML = `<div class="dialogue">${line}</div>`;
+                    }
+                    
+                    scriptContent.appendChild(lineElement);
+                });
+            }
+            
+            // Copy script to clipboard
+            copyBtn.addEventListener('click', function() {
+                const scriptText = Array.from(scriptContent.querySelectorAll('.script-line'))
+                    .map(line => line.textContent)
+                    .join('\n');
+                
+                navigator.clipboard.writeText(scriptText)
+                    .then(() => {
+                        showNotification('Script copied to clipboard!');
+                    })
+                    .catch(err => {
+                        showNotification('Failed to copy script', true);
+                        console.error('Failed to copy text: ', err);
+                    });
+            });
+            
+            // Export script
+            exportBtn.addEventListener('click', function() {
+                const scriptText = Array.from(scriptContent.querySelectorAll('.script-line'))
+                    .map(line => line.textContent)
+                    .join('\n');
+                
+                const blob = new Blob([scriptText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'video-script.txt';
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification('Script downloaded!');
+                }, 100);
+            });
+            
+            // Show notification
+            function showNotification(message, isError = false) {
+                notification.textContent = message;
+                notification.classList.remove('error');
+                
+                if (isError) {
+                    notification.classList.add('error');
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

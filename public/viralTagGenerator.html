@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Viral Tag Generator - YouTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #e2e8f0;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(26, 32, 44, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        border-bottom: 1px solid rgba(74, 85, 104, 0.5);
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: white;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        color: #cbd5e0;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .input-section {
+        background: rgba(45, 55, 72, 0.5);
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #e2e8f0;
+        font-size: 1rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid rgba(74, 85, 104, 0.5);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(26, 32, 44, 0.8);
+        color: #e2e8f0;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      }
+
+      .form-control::placeholder {
+        color: #a0aec0;
+        font-style: italic;
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown select {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid rgba(74, 85, 104, 0.5);
+        border-radius: 10px;
+        font-size: 1rem;
+        background: rgba(26, 32, 44, 0.8);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0aec0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 40px;
+        color: #e2e8f0;
+      }
+
+      .dropdown select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      }
+
+      .dropdown select:hover {
+        border-color: #667eea;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .results-section {
+        margin-top: 30px;
+      }
+
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .results-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #e2e8f0;
+      }
+
+      .copy-all-btn {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .copy-all-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
+      }
+
+      .tags-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .tag-card {
+        background: rgba(45, 55, 72, 0.5);
+        border: 1px solid rgba(74, 85, 104, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .tag-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        background: rgba(45, 55, 72, 0.7);
+      }
+
+      .tag-text {
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-bottom: 10px;
+        font-size: 1rem;
+      }
+
+      .tag-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .tag-popularity {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .tag-videos {
+        color: #a0aec0;
+        font-size: 0.9rem;
+      }
+
+      .copy-tag-btn {
+        background: rgba(26, 32, 44, 0.8);
+        border: 1px solid rgba(74, 85, 104, 0.3);
+        color: #667eea;
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .copy-tag-btn:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .error-message {
+        background: rgba(245, 101, 101, 0.1);
+        color: #fc8181;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border: 1px solid rgba(245, 101, 101, 0.3);
+      }
+
+      .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #a0aec0;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .input-section {
+          padding: 20px;
+        }
+
+        .tags-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"
+            />
+            <path d="M7 7h.01" />
+          </svg>
+          Viral Tag Generator
+        </h1>
+        <p>Discover trending tags that can make your videos go viral</p>
+      </div>
+
+      <div class="content">
+        <div class="input-section">
+          <div class="form-group">
+            <label for="topicInput">Enter Your Video Topic:</label>
+            <input
+              type="text"
+              id="topicInput"
+              class="form-control"
+              placeholder="Gaming Tips, Travel Vlogs, etc."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="timeSelect">Time Duration:</label>
+            <div class="dropdown">
+              <select id="timeSelect" class="form-control">
+                <option value="week" selected>Past Week</option>
+                <option value="day">Past Day</option>
+                <option value="month">Past Month</option>
+                <option value="year">Past Year</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="generateTags()" class="btn" id="generateBtn">
+            Generate Viral Tags
+          </button>
+        </div>
+
+        <div class="loading" id="loading">
+          <p>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-3 0-2-2" />
+            </svg>
+            Analyzing trending videos and extracting viral tags...
+          </p>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none">
+          <div class="results-header">
+            <h2 class="results-title">Viral Tags Found</h2>
+            <button onclick="copyAllTags()" class="copy-all-btn">
+              Copy All Tags
+            </button>
+          </div>
+
+          <div
+            class="trending-section"
+            id="trendingSection"
+            style="display: none"
+          >
+            <h3 style="color: #f56565; margin-bottom: 15px; font-size: 1.3rem">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M11 21h-1l1-7H5l9-12h1l-1 7h6l-9 12z" />
+              </svg>
+              Trending Tags
+            </h3>
+            <div class="tags-grid" id="trendingGrid"></div>
+          </div>
+
+          <div
+            class="popular-section"
+            id="popularSection"
+            style="display: none; margin-top: 30px"
+          >
+            <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.3rem">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M3 3v18h18" />
+                <path d="M19 9l-5 5-4-4-3 3" />
+              </svg>
+              Popular Tags
+            </h3>
+            <div class="tags-grid" id="popularGrid"></div>
+          </div>
+        </div>
+
+        <div
+          class="error-message"
+          id="errorMessage"
+          style="display: none"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      let allTags = [];
+
+      async function generateTags() {
+        const topic = document.getElementById("topicInput").value.trim();
+        const timeRange = document.getElementById("timeSelect").value;
+
+        if (!topic) {
+          showError("Please enter a video topic");
+          return;
+        }
+
+        showLoading(true);
+        hideError();
+        hideResults();
+
+        try {
+          const response = await fetch("/api/generate-tags", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic, timeRange }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to generate tags");
+          }
+
+          const result = await response.json();
+          displayTags(result.tags);
+        } catch (error) {
+          showError("Failed to generate tags: " + error.message);
+          console.error("Error:", error);
+        } finally {
+          showLoading(false);
+        }
+      }
+      function displayTags(tags) {
+        allTags = tags;
+
+        if (tags.length === 0) {
+          document.getElementById("trendingGrid").innerHTML =
+            '<div class="no-results">No viral tags found for this topic. Try a different search term.</div>';
+          document.getElementById("trendingSection").style.display = "block";
+          document.getElementById("popularSection").style.display = "none";
+        } else {
+          const trendingTags = tags.slice(0, 10);
+          const popularTags = tags.slice(10);
+
+          document.getElementById("trendingGrid").innerHTML = trendingTags
+            .map(
+              (tagData) => `
+                    <div class="tag-card">
+                        <div class="tag-text">#${tagData.tag}</div>
+                        <div class="tag-stats">
+                            <span class="tag-popularity" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);">${getPopularityLevel(
+                              tagData.popularity
+                            )}</span>
+                            <span class="tag-videos">${tagData.videos.toLocaleString()} videos</span>
+                        </div>
+                        <button onclick="copyTag('${
+                          tagData.tag
+                        }')" class="copy-tag-btn">Copy Tag</button>
+                    </div>
+                `
+            )
+            .join("");
+
+          if (popularTags.length > 0) {
+            document.getElementById("popularGrid").innerHTML = popularTags
+              .map(
+                (tagData) => `
+                        <div class="tag-card">
+                            <div class="tag-text">#${tagData.tag}</div>
+                            <div class="tag-stats">
+                                <span class="tag-popularity">${getPopularityLevel(
+                                  tagData.popularity
+                                )}</span>
+                                <span class="tag-videos">${tagData.videos.toLocaleString()} videos</span>
+                            </div>
+                            <button onclick="copyTag('${
+                              tagData.tag
+                            }')" class="copy-tag-btn">Copy Tag</button>
+                        </div>
+                    `
+              )
+              .join("");
+            document.getElementById("popularSection").style.display = "block";
+          } else {
+            document.getElementById("popularSection").style.display = "none";
+          }
+
+          document.getElementById("trendingSection").style.display = "block";
+        }
+
+        showResults();
+      }
+
+      function getPopularityLevel(popularity) {
+        if (popularity >= 15) return "VIRAL";
+        if (popularity >= 10) return "TRENDING";
+        if (popularity >= 5) return "POPULAR";
+        return "RISING";
+      }
+
+      function copyTag(tag) {
+        navigator.clipboard.writeText(`#${tag}`).then(() => {
+          event.target.textContent = "Copied!";
+          event.target.style.background = "#38a169";
+          event.target.style.color = "white";
+
+          setTimeout(() => {
+            event.target.textContent = "Copy Tag";
+            event.target.style.background = "rgba(26, 32, 44, 0.8)";
+            event.target.style.color = "#667eea";
+          }, 1000);
+        });
+      }
+
+      function copyAllTags() {
+        const allTagsText = allTags
+          .map((tagData) => `#${tagData.tag}`)
+          .join(" ");
+        navigator.clipboard.writeText(allTagsText).then(() => {
+          const btn = document.querySelector(".copy-all-btn");
+          btn.textContent = "Copied All!";
+          setTimeout(() => {
+            btn.textContent = "Copy All Tags";
+          }, 1000);
+        });
+      }
+
+      function showLoading(show) {
+        document.getElementById("loading").style.display = show
+          ? "block"
+          : "none";
+        document.getElementById("generateBtn").disabled = show;
+      }
+
+      function showResults() {
+        document.getElementById("resultsSection").style.display = "block";
+      }
+
+      function hideResults() {
+        document.getElementById("resultsSection").style.display = "none";
+        document.getElementById("trendingSection").style.display = "none";
+        document.getElementById("popularSection").style.display = "none";
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("errorMessage").style.display = "none";
+      }
+
+      document
+        .getElementById("topicInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            generateTags();
+          }
+        });
+    </script>
+  </body>
+</html>

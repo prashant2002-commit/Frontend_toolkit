@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #e2e8f0;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(26, 32, 44, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-bottom: 1px solid rgba(74, 85, 104, 0.5);
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: white;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        color: #cbd5e0;
+      }
+
+      .search-section {
+        padding: 30px;
+        background: rgba(45, 55, 72, 0.5);
+        border-bottom: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .search-container {
+        display: flex;
+        gap: 15px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .search-input {
+        flex: 1;
+        padding: 15px 20px;
+        border: 1px solid rgba(74, 85, 104, 0.5);
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: rgba(26, 32, 44, 0.8);
+        color: #e2e8f0;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        background: rgba(26, 32, 44, 0.9);
+      }
+
+      .search-input::placeholder {
+        color: #a0aec0;
+      }
+
+      .search-btn {
+        padding: 15px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .search-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .input-help {
+        margin-top: 15px;
+        text-align: center;
+        color: #a0aec0;
+        font-size: 14px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #667eea;
+        font-size: 18px;
+      }
+
+      .error {
+        background: rgba(245, 101, 101, 0.1);
+        color: #fc8181;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(245, 101, 101, 0.3);
+      }
+
+      .dashboard {
+        padding: 30px;
+        display: none;
+      }
+
+      .channel-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(45, 55, 72, 0.5);
+        border-radius: 15px;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .channel-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(74, 85, 104, 0.5);
+      }
+
+      .channel-details h2 {
+        font-size: 1.8rem;
+        color: #e2e8f0;
+        margin-bottom: 5px;
+      }
+
+      .channel-details p {
+        color: #a0aec0;
+        font-size: 14px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: rgba(45, 55, 72, 0.5);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid;
+        transition: transform 0.3s ease;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        background: rgba(45, 55, 72, 0.7);
+      }
+
+      .stat-card.subscribers {
+        border-left-color: #f56565;
+      }
+      .stat-card.views {
+        border-left-color: #4ecdc4;
+      }
+      .stat-card.videos {
+        border-left-color: #4299e1;
+      }
+      .stat-card.engagement {
+        border-left-color: #48bb78;
+      }
+
+      .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #a0aec0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .stat-change {
+        font-size: 12px;
+        margin-top: 8px;
+        padding: 4px 8px;
+        border-radius: 20px;
+        display: inline-block;
+      }
+
+      .stat-change.positive {
+        background: rgba(72, 187, 120, 0.2);
+        color: #68d391;
+        border: 1px solid rgba(72, 187, 120, 0.3);
+      }
+
+      .stat-change.negative {
+        background: rgba(245, 101, 101, 0.2);
+        color: #fc8181;
+        border: 1px solid rgba(245, 101, 101, 0.3);
+      }
+
+      /* Engagement Insights Section */
+      .engagement-insights {
+        background: rgba(45, 55, 72, 0.5);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .insights-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .insights-title {
+        font-size: 1.5rem;
+        color: #e2e8f0;
+        font-weight: 600;
+      }
+
+      .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .insight-card {
+        background: rgba(26, 32, 44, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .insight-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin-bottom: 8px;
+      }
+
+      .insight-label {
+        color: #a0aec0;
+        font-size: 14px;
+      }
+
+      .videos-section {
+        margin-top: 30px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        color: #e2e8f0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .videos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .video-card {
+        background: rgba(45, 55, 72, 0.5);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .video-card:hover {
+        transform: translateY(-5px);
+        background: rgba(45, 55, 72, 0.7);
+      }
+
+      .video-thumbnail {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+      }
+
+      .video-thumbnail:hover {
+        opacity: 0.9;
+      }
+
+      .video-info {
+        padding: 15px;
+      }
+
+      .video-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .video-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #a0aec0;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .video-stats span {
+        background: rgba(26, 32, 44, 0.8);
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(74, 85, 104, 0.3);
+      }
+
+      .watch-video-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: rgba(102, 126, 234, 0.2);
+        color: #667eea;
+        padding: 8px;
+        border-radius: 6px;
+        margin-top: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .watch-video-btn:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .search-container {
+          flex-direction: column;
+        }
+
+        .channel-info {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .insights-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .video-stats {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="50"
+            height="50"
+            fill="white"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2v10h10c0-5.5-4.5-10-10-10zM2 12c0 5.5 4.5 10 10 10v-10H2zm12 0v10c5.5 0 10-4.5 10-10h-10z"
+            />
+          </svg>
+          YouTube Channel Stats
+        </h1>
+        <p>Get comprehensive analytics for any YouTube channel</p>
+      </div>
+
+      <div class="search-section">
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            id="channelInput"
+            placeholder="Enter YouTube channel URL, @handle, or channel ID"
+          />
+          <button class="search-btn" id="searchBtn">Analyze Channel</button>
+        </div>
+        <div class="input-help">
+          Supports: youtube.com/@channelname, @handle, or channel ID (UC...)
+        </div>
+      </div>
+
+      <div id="loading" class="loading" style="display: none">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            stroke="white"
+            fill="none"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Fetching channel analytics...
+        </div>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
+
+      <div id="dashboard" class="dashboard">
+        <div class="channel-info">
+          <img
+            id="channelAvatar"
+            class="channel-avatar"
+            src="/placeholder.svg"
+            alt="Channel Avatar"
+          />
+          <div class="channel-details">
+            <h2 id="channelName">Channel Name</h2>
+            <p id="channelDescription">Channel description will appear here</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card subscribers">
+            <div class="stat-number" id="subscriberCount">0</div>
+            <div class="stat-label">Subscribers</div>
+            <div class="stat-change positive" id="subscriberChange">
+              +2.5% this month
+            </div>
+          </div>
+          <div class="stat-card views">
+            <div class="stat-number" id="viewCount">0</div>
+            <div class="stat-label">Total Views</div>
+            <div class="stat-change positive" id="viewChange">
+              +15.3% this month
+            </div>
+          </div>
+          <div class="stat-card videos">
+            <div class="stat-number" id="videoCount">0</div>
+            <div class="stat-label">Total Videos</div>
+            <div class="stat-change positive" id="videoChange">
+              +3 this month
+            </div>
+          </div>
+          <div class="stat-card engagement">
+            <div class="stat-number" id="engagementRate">0%</div>
+            <div class="stat-label">Avg Engagement</div>
+            <div class="stat-change positive" id="engagementChange">
+              +0.8% this month
+            </div>
+          </div>
+        </div>
+
+        <!-- Engagement Insights Section -->
+        <div
+          class="engagement-insights"
+          id="engagementInsights"
+          style="display: none"
+        >
+          <div class="insights-header">
+            <h3 class="insights-title">Engagement Insights</h3>
+          </div>
+
+          <div class="insights-grid">
+            <div class="insight-card">
+              <div class="insight-value" id="avgLikes">0</div>
+              <div class="insight-label">Avg Likes per Video</div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-value" id="avgComments">0</div>
+              <div class="insight-label">Avg Comments per Video</div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-value" id="engagementScore">0%</div>
+              <div class="insight-label">Engagement Score</div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-value" id="bestPerforming">0%</div>
+              <div class="insight-label">Best Performing Video</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="videos-section">
+          <h3 class="section-title">Recent Videos Performance</h3>
+          <div class="videos-grid" id="videosGrid">
+            <!-- Videos will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+          // Utility Functions (keep these)
+    function formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+    }
+
+    function calculateEngagementRate(likes, comments, views) {
+        if (!views || views === 0) return 0;
+        const engagement = (parseInt(likes || 0) + parseInt(comments || 0)) / parseInt(views);
+        return (engagement * 100).toFixed(1);
+    }
+
+    function calculateEngagementInsights(videoStats) {
+        let totalLikes = 0;
+        let totalComments = 0;
+        let totalViews = 0;
+        let maxEngagement = 0;
+        
+        videoStats.forEach(video => {
+            const likes = parseInt(video.statistics.likeCount || 0);
+            const comments = parseInt(video.statistics.commentCount || 0);
+            const views = parseInt(video.statistics.viewCount || 0);
+            
+            totalLikes += likes;
+            totalComments += comments;
+            totalViews += views;
+            
+            const engagement = calculateEngagementRate(likes, comments, views);
+            if (engagement > maxEngagement) {
+                maxEngagement = engagement;
+            }
+        });
+        
+        const avgLikes = videoStats.length > 0 ? Math.round(totalLikes / videoStats.length) : 0;
+        const avgComments = videoStats.length > 0 ? Math.round(totalComments / videoStats.length) : 0;
+        const engagementScore = totalViews > 0 ? ((totalLikes + totalComments) / totalViews * 100).toFixed(1) : 0;
+        
+        return {
+            avgLikes,
+            avgComments,
+            engagementScore,
+            bestPerforming: maxEngagement
+        };
+    }
+
+    // Main Analytics Function (updated)
+    async function analyzeChannel() {
+        const channelInput = document.getElementById('channelInput').value.trim();
+        if (!channelInput) {
+            showError('Please enter a channel URL, handle, or ID');
+            return;
+        }
+
+        showLoading(true);
+        hideError();
+        hideDashboard();
+        document.getElementById('engagementInsights').style.display = 'none';
+
+        try {
+            // Send request to your backend
+            const response = await fetch('/api/youtube-analytics', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channelInput })
+            });
+
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.error);
+            }
+
+            // Display results
+            displayChannelInfo(result.channelData.snippet, result.channelData.statistics);
+            displayVideoStats(result.videos, result.videoStats);
+            displayEngagementInsights(result.videoStats);
+            
+            showDashboard();
+
+        } catch (error) {
+            console.error('Error:', error);
+            showError(error.message || 'Failed to fetch channel data. Please check the channel identifier and try again.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Display Functions (keep these)
+    function displayChannelInfo(snippet, stats) {
+        document.getElementById('channelName').textContent = snippet.title;
+        document.getElementById('channelDescription').textContent = snippet.description.substring(0, 150) + '...';
+        document.getElementById('channelAvatar').src = snippet.thumbnails.high.url;
+        
+        document.getElementById('subscriberCount').textContent = formatNumber(stats.subscriberCount);
+        document.getElementById('viewCount').textContent = formatNumber(stats.viewCount);
+        document.getElementById('videoCount').textContent = formatNumber(stats.videoCount);
+    }
+
+    function displayVideoStats(videos, videoStats) {
+        const videosGrid = document.getElementById('videosGrid');
+        videosGrid.innerHTML = '';
+
+        let totalEngagement = 0;
+        let validVideos = 0;
+
+        videoStats.forEach((video, index) => {
+            const videoElement = videos.find(v => v.id.videoId === video.id);
+            if (!videoElement) return;
+
+            const engagement = calculateEngagementRate(
+                video.statistics.likeCount,
+                video.statistics.commentCount,
+                video.statistics.viewCount
+            );
+
+            if (engagement > 0) {
+                totalEngagement += parseFloat(engagement);
+                validVideos++;
+            }
+
+            const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
+            
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.innerHTML = `
+                <img class="video-thumbnail" src="${videoElement.snippet.thumbnails.medium.url}" alt="Video thumbnail" onclick="window.open('${videoUrl}', '_blank')">
+                <div class="video-info">
+                    <div class="video-title">${videoElement.snippet.title}</div>
+                    <div class="video-stats">
+                        <span>${formatNumber(video.statistics.viewCount)} views</span>
+                        <span>${formatNumber(video.statistics.likeCount)} likes</span>
+                        <span>${engagement}% engagement</span>
+                    </div>
+                    <a href="${videoUrl}" target="_blank" class="watch-video-btn">
+                        Watch Video
+                    </a>
+                </div>
+            `;
+            videosGrid.appendChild(videoCard);
+        });
+
+        // Update average engagement
+        const avgEngagement = validVideos > 0 ? (totalEngagement / validVideos).toFixed(1) : '0';
+        document.getElementById('engagementRate').textContent = avgEngagement + '%';
+    }
+
+    function displayEngagementInsights(videoStats) {
+        if (videoStats.length === 0) return;
+        
+        const insights = calculateEngagementInsights(videoStats);
+        
+        document.getElementById('avgLikes').textContent = formatNumber(insights.avgLikes);
+        document.getElementById('avgComments').textContent = formatNumber(insights.avgComments);
+        document.getElementById('engagementScore').textContent = insights.engagementScore + '%';
+        document.getElementById('bestPerforming').textContent = insights.bestPerforming + '%';
+        
+        // Show the engagement insights section
+        document.getElementById('engagementInsights').style.display = 'block';
+    }
+
+    // UI Helper Functions (keep these)
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        document.getElementById('searchBtn').disabled = show;
+        document.getElementById('searchBtn').textContent = show ? 'Analyzing...' : 'Analyze Channel';
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('error');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function hideError() {
+        document.getElementById('error').style.display = 'none';
+    }
+
+    function showDashboard() {
+        document.getElementById('dashboard').style.display = 'block';
+    }
+
+    function hideDashboard() {
+        document.getElementById('dashboard').style.display = 'none';
+    }
+
+    // Event Listeners (keep these)
+    document.getElementById('searchBtn').addEventListener('click', analyzeChannel);
+    document.getElementById('channelInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            analyzeChannel();
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('YouTube Analytics Dashboard loaded');
+    });
+    </script>
+  </body>
+</html>

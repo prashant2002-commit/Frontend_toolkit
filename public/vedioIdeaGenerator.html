@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Video Idea Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Simple toggle switch styling */
+      .toggle-checkbox:checked {
+        right: 0;
+        border-color: #3b82f6; /* blue-500 */
+      }
+      .toggle-checkbox:checked + .toggle-label {
+        background-color: #3b82f6; /* blue-500 */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200">
+    <div class="container mx-auto p-4 md:p-8">
+      <header class="text-center mb-8 md:mb-12">
+        <div
+          class="inline-flex items-center justify-center bg-blue-500/10 text-blue-400 rounded-full p-3 mb-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="m12 3-1.9 5.8-5.8 1.9 5.8 1.9L12 21l1.9-5.8 5.8-1.9-5.8-1.9L12 3z"
+            />
+            <path d="M5 3v4" />
+            <path d="M19 17v4" />
+            <path d="M3 5h4" />
+            <path d="M17 19h4" />
+          </svg>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold text-white">
+          AI Video Idea Generator
+        </h1>
+        <p class="text-gray-400 mt-2 max-w-2xl mx-auto">
+          Turn a single keyword into 10 high-quality, non-generic video ideas
+          with our advanced generation engine.
+        </p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- --- LEFT COLUMN: CONTROLS --- -->
+        <div
+          class="lg:col-span-1 bg-gray-800/50 border border-gray-700 rounded-xl p-6 h-fit"
+        >
+          <h2 class="text-2xl font-bold text-white mb-6">Controls</h2>
+
+          <!-- Keyword Input -->
+          <div class="mb-6">
+            <label
+              for="keyword"
+              class="block text-sm font-medium text-gray-300 mb-2"
+              >1. Enter a Keyword</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="keyword-input"
+                placeholder="e.g., 'Productivity', 'Sourdough', 'AI'"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <p id="error-message" class="text-red-400 text-sm mt-2 hidden"></p>
+          </div>
+
+          <!-- Intelligence Upgrades -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-white mb-2">
+              2. Intelligence Upgrades
+            </h3>
+            <div id="settings-container" class="divide-y divide-gray-700">
+              <!-- Toggles will be injected here by JS -->
+            </div>
+          </div>
+
+          <!-- Region Toggle -->
+          <div class="mb-8">
+            <label
+              for="region"
+              class="block text-sm font-medium text-gray-300 mb-2"
+              >3. Regional Focus</label
+            >
+            <div class="relative">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <select
+                id="region-select"
+                class="w-full appearance-none bg-gray-700 border border-gray-600 rounded-lg py-2 pl-9 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Global">Global</option>
+                <option value="India">India-first</option>
+              </select>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Generate Button -->
+          <button
+            id="generate-button"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center disabled:bg-blue-800 disabled:cursor-not-allowed"
+          >
+            Generate Ideas
+          </button>
+        </div>
+
+        <!-- --- RIGHT COLUMN: RESULTS --- -->
+        <div class="lg:col-span-2">
+          <h2 class="text-2xl font-bold text-white mb-6">Generated Ideas</h2>
+          <div
+            id="results-container"
+            class="bg-gray-800/50 border border-gray-700 rounded-xl p-6 min-h-[600px]"
+          >
+            <!-- Initial State -->
+            <div
+              id="initial-state"
+              class="flex flex-col items-center justify-center h-full text-center"
+            >
+              <div class="p-4 bg-gray-700 rounded-full mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-blue-400"
+                >
+                  <path
+                    d="m12 3-1.9 5.8-5.8 1.9 5.8 1.9L12 21l1.9-5.8 5.8-1.9-5.8-1.9L12 3z"
+                  />
+                  <path d="M5 3v4" />
+                  <path d="M19 17v4" />
+                  <path d="M3 5h4" />
+                  <path d="M17 19h4" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-white">
+                Your ideas will appear here
+              </h3>
+              <p class="text-gray-400 mt-1">
+                Enter a keyword and click generate to start.
+              </p>
+            </div>
+            <!-- Loading State -->
+            <div
+              id="loading-state"
+              class="hidden flex-col items-center justify-center h-full"
+            >
+              <div
+                class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"
+              ></div>
+              <p class="mt-4 text-gray-400">Contacting AI, please wait...</p>
+            </div>
+            <!-- Ideas List -->
+            <div id="ideas-list"></div>
+            <!-- JSON Output -->
+            <div
+              id="json-output-container"
+              class="hidden mt-8 border-t border-gray-700 pt-6"
+            >
+              <button
+                id="json-toggle-button"
+                class="flex items-center justify-between w-full text-left text-lg font-semibold text-white"
+              >
+                <span>View Strict JSON Output</span>
+                <svg
+                  id="json-chevron"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="transition-transform"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div id="json-viewer" class="hidden relative mt-4">
+                <pre
+                  class="bg-gray-900 text-sm text-green-300 p-4 rounded-lg overflow-x-auto"
+                >
+                                <code id="json-code"></code>
+                            </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- DOM ELEMENTS ---
+        const keywordInput = document.getElementById("keyword-input");
+        const generateButton = document.getElementById("generate-button");
+        const errorMessage = document.getElementById("error-message");
+        const regionSelect = document.getElementById("region-select");
+        const resultsContainer = document.getElementById("results-container");
+        const initialState = document.getElementById("initial-state");
+        const loadingState = document.getElementById("loading-state");
+        const ideasList = document.getElementById("ideas-list");
+        const jsonOutputContainer = document.getElementById(
+          "json-output-container"
+        );
+        const jsonToggleButton = document.getElementById("json-toggle-button");
+        const jsonViewer = document.getElementById("json-viewer");
+        const jsonCode = document.getElementById("json-code");
+        const jsonChevron = document.getElementById("json-chevron");
+        const settingsContainer = document.getElementById("settings-container");
+
+        // --- DATA ---
+        const settings = [
+          {
+            id: "reality-check",
+            title: "Reality Check",
+            description:
+              "Integrates with YouTube API to remove ideas too similar to already popular videos.",
+            enabled: true,
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><path d="M15.63 15.87C15.2 14.72 14.25 14 13.06 14H7.94c-1.19 0-2.14.72-2.57 1.87"/><path d="M16.43 11.27c.23-.9.0-1.87-.68-2.62a4.44 4.44 0 0 0-2.62-.95L12 7.65l-1.13.05a4.44 4.44 0 0 0-2.62.95c-.68.75-.91 1.72-.68 2.62"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>`,
+          },
+          {
+            id: "autocomplete-mine",
+            title: "Autocomplete Mining",
+            description:
+              "Uses Google/YouTube autocomplete to find long-tail keywords and generate more specific ideas.",
+            enabled: false,
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+          },
+          {
+            id: "advanced-clustering",
+            title: "Advanced Clustering",
+            description:
+              "Employs embeddings to ensure a diverse set of final ideas across different angles and formats.",
+            enabled: true,
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400"><path d="M18 8.5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7Z"/><path d="M12.5 12a.5.5 0 0 0-1 0v3a.5.5 0 0 0 1 0v-3Z"/><path d="M7 10.5a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0v-5Z"/><path d="M21 12a9 9 0 1 0-18 0 9 9 0 0 0 18 0Z"/></svg>`,
+          },
+          {
+            id: "channel-aware",
+            title: "Channel-Aware Mode",
+            description:
+              "Personalizes suggestions by analyzing your past content to avoid repetition and match your style.",
+            enabled: false,
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><path d="M14.5 15.5h-5L12 20Z"/><path d="M17.8 4.2c.4.4.7 1 .7 1.7 0 .6-.2 1.2-.6 1.6-.4.4-1 .6-1.6.6h-2.3c-.4 0-.8.2-1.1.4-.3.2-.5.6-.6.9l-2.4 7.4c-.1.4 0 .8.3 1.1.3.3.7.5 1.1.5h9.8c.4 0 .8-.2 1.1-.5.3-.3.4-.7.3-1.1l-2.4-7.4c-.1-.3-.3-.7-.6-.9-.3-.2-.7-.4-1.1-.4h-2.3c-.7 0-1.3-.3-1.7-.7-.4-.4-.7-1-.7-1.7 0-.6.2-1.2.6-1.6.4-.4 1-.6 1.6-.6h.3c.7 0 1.3.3 1.7.7Z"/></svg>`,
+          },
+        ];
+
+        // --- FUNCTIONS ---
+
+        const createSettingToggle = (setting) => {
+          const isChecked = setting.enabled ? "checked" : "";
+          const toggleHTML = `
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-gray-700 rounded-lg mr-4">${setting.icon}</div>
+                            <div><h4 class="font-semibold text-white">${setting.title}</h4></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="relative group flex items-center">
+                                <button class="mr-3 text-gray-400 hover:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.055.491.223.552.372.09.226.065.44.028.617a.934.934 0 0 1-.028.028c-.07.114-.176.217-.275.297-.14.117-.298.217-.455.297l-.17.09-.002.002-.001.001c-.29.15-.546.333-.74.547a1 1 0 0 0 .016 1.415.987.987 0 0 0 1.415-.016c.195-.213.36-.46.49-.707.13-.246.205-.523.205-.816v-.008c.002-.224.002-.447-.03-.662a1.85 1.85 0 0 0-.12-.443c-.08-.194-.188-.358-.31-.479-.12-.121-.26-.212-.41-.268l-.22-.082.011-.05.298-.043c.34-.049.63-.196.81-.414.18-.218.255-.502.255-.816v-.008c0-.31-.08-.58-.24-.793a1.12 1.12 0 0 0-.21-.224c-.13-.13-.28-.223-.45-.277l-.17-.05-.011.049.22.082c.15.056.28.147.39.268.11.122.19.277.24.455.05.178.07.37.07.58v.007c0 .29-.07.53-.21.707-.14.177-.33.29-.57.33l-.22.037.01.05.22-.037c.24-.04.43-.153.57-.33.14-.176.21-.416.21-.707v-.007a1.12 1.12 0 0 0-.24-.793 1.12 1.12 0 0 0-.45-.487c-.2-.13-.43-.207-.69-.207-.26 0-.5.076-.69.223-.19.146-.33.34-.42.57-.09.23-.13.49-.13.78v.007c0 .29.04.54.13.78.09.23.23.424.42.57.19.147.43.224.69.224.26 0 .5-.077.69-.224a1.12 1.12 0 0 0 .42-.57c.09-.23.13-.49.13-.78v-.007c0-.29-.04-.54-.13-.78a1.12 1.12 0 0 0-.42-.57c-.19-.147-.43-.223-.69-.223-.26 0-.5.076-.69.223a1.12 1.12 0 0 0-.42.57c-.09.23-.13.49-.13.78v.008c0 .29.04.54.13.78.09.23.23.424.42.57.19.147.43.223.69.223.26 0 .5-.077.69-.224.19-.147.33-.34.42-.57.09-.23.13-.49.13-.78v-.008c0-.29-.04-.54-.13-.78a1.12 1.12 0 0 0-.42-.57c-.19-.147-.43-.223-.69-.223-.26 0-.5.077-.69-.224a1.12 1.12 0 0 0-.42.57c-.09.23-.13.49-.13.78v.007c0 .29.04.54.13.78.09.23.23.424.42.57.19.147.43.223.69.223.26 0 .5-.077.69-.224.19-.147.33-.34.42-.57.09-.23.13-.49.13-.78z"/></svg>
+                                </button>
+                                <div class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 bg-gray-700 text-white text-xs rounded-md py-1 px-2 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                    ${setting.description}
+                                </div>
+                            </div>
+                            <label for="${setting.id}" class="relative inline-block w-12 h-6 cursor-pointer">
+                                <input type="checkbox" id="${setting.id}" class="sr-only peer" ${isChecked}>
+                                <div class="w-full h-full bg-gray-600 rounded-full peer-checked:bg-blue-500 transition-colors"></div>
+                                <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div>
+                            </label>
+                        </div>
+                    </div>
+                `;
+          const container = document.createElement("div");
+          container.innerHTML = toggleHTML;
+
+          if (setting.id === "channel-aware") {
+            const inputContainer = document.createElement("div");
+            inputContainer.id = "channel-url-container";
+            inputContainer.className =
+              "pl-8 pt-2 pb-3" + (setting.enabled ? "" : " hidden");
+            inputContainer.innerHTML = `<input type="text" id="channel-url-input" placeholder="Enter your channel URL..." class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500">`;
+            container.appendChild(inputContainer);
+
+            container
+              .querySelector(`#${setting.id}`)
+              .addEventListener("change", (e) => {
+                inputContainer.classList.toggle("hidden", !e.target.checked);
+              });
+          }
+          return container;
+        };
+
+        settings.forEach((setting) => {
+          settingsContainer.appendChild(createSettingToggle(setting));
+        });
+
+        const createIdeaCard = (idea) => {
+          const card = document.createElement("div");
+          card.className =
+            "bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4 transition-all hover:border-blue-500 hover:shadow-lg";
+          card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-lg font-bold text-white mb-2 pr-4">${idea.title}</h3>
+                        <button class="copy-button text-gray-400 hover:text-white transition-colors">
+                            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <svg class="check-icon hidden text-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </button>
+                    </div>
+                    <p class="text-gray-300 mb-3 text-sm"><strong class="text-gray-100">Hook:</strong> ${idea.hook}</p>
+                    <div class="flex items-center space-x-4 text-xs">
+                        <span class="bg-blue-900/50 text-blue-300 px-2 py-1 rounded-full"><strong>Angle:</strong> ${idea.angle}</span>
+                        <span class="bg-purple-900/50 text-purple-300 px-2 py-1 rounded-full"><strong>Format:</strong> ${idea.format}</span>
+                    </div>
+                `;
+
+          card.querySelector(".copy-button").addEventListener("click", (e) => {
+            const button = e.currentTarget;
+            const ideaText = `Title: ${idea.title}\nHook: ${idea.hook}\nAngle: ${idea.angle}\nFormat: ${idea.format}`;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = ideaText;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+              document.execCommand("copy");
+              button.querySelector(".copy-icon").classList.add("hidden");
+              button.querySelector(".check-icon").classList.remove("hidden");
+              setTimeout(() => {
+                button.querySelector(".copy-icon").classList.remove("hidden");
+                button.querySelector(".check-icon").classList.add("hidden");
+              }, 2000);
+            } catch (err) {
+              console.error("Failed to copy text: ", err);
+            }
+            document.body.removeChild(textArea);
+          });
+
+          return card;
+        };
+
+        const handleGenerationError = (message) => {
+          loadingState.style.display = "none";
+          ideasList.innerHTML = `<p class="text-center text-red-400">${message}</p>`;
+          generateButton.disabled = false;
+          generateButton.innerHTML = "Generate 10 Ideas";
+        };
+
+        const handleGenerate = async () => {
+          if (!keywordInput.value.trim()) {
+            errorMessage.textContent = "Please enter a keyword.";
+            errorMessage.classList.remove("hidden");
+            return;
+          }
+          errorMessage.classList.add("hidden");
+
+          generateButton.disabled = true;
+          generateButton.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Generating...`;
+          initialState.style.display = "none";
+          ideasList.innerHTML = "";
+          jsonOutputContainer.classList.add("hidden");
+          loadingState.style.display = "flex";
+
+          // --- AI-POWERED GENERATION ---
+          try {
+            const keyword = keywordInput.value;
+            const region = regionSelect.value;
+
+            // Get settings states
+            const settingsState = {
+              realityCheck: document.getElementById("reality-check").checked,
+              autocompleteMine:
+                document.getElementById("autocomplete-mine").checked,
+              advancedClustering: document.getElementById("advanced-clustering")
+                .checked,
+              channelAware: document.getElementById("channel-aware").checked,
+              channelUrl: document.getElementById("channel-aware").checked
+                ? document.getElementById("channel-url-input").value
+                : "",
+            };
+
+            // Send request to our server
+            const response = await fetch("/api/generate-ideas", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                keyword,
+                region,
+                settings: settingsState,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `Server error: ${response.status} ${response.statusText}`
+              );
+            }
+
+            const result = await response.json();
+
+            if (
+              !result.candidates ||
+              !result.candidates[0].content.parts[0].text
+            ) {
+              throw new Error("Invalid response structure from AI.");
+            }
+
+            const jsonText = result.candidates[0].content.parts[0].text;
+            const parsedJson = JSON.parse(jsonText);
+            let rawIdeas = parsedJson.video_ideas || [];
+
+            // --- PROCESS THE GENERATED IDEAS ---
+            const realityCheck =
+              document.getElementById("reality-check").checked;
+            const advancedClustering = document.getElementById(
+              "advanced-clustering"
+            ).checked;
+
+            let processedIdeas = [...rawIdeas];
+            if (realityCheck) {
+              processedIdeas = processedIdeas.filter(
+                (idea) => idea.popularity < 95
+              );
+            }
+            processedIdeas = processedIdeas.filter((idea) => !idea.generic);
+            processedIdeas.sort(
+              (a, b) =>
+                b.novelty * 1.5 + b.relevance - (a.novelty * 1.5 + a.relevance)
+            );
+
+            let finalIdeas = [];
+            if (advancedClustering) {
+              const seenAngles = new Set();
+              for (const idea of processedIdeas) {
+                if (finalIdeas.length >= 10) break;
+                if (!seenAngles.has(idea.angle)) {
+                  finalIdeas.push(idea);
+                  seenAngles.add(idea.angle);
+                }
+              }
+              for (const idea of processedIdeas) {
+                if (finalIdeas.length >= 10) break;
+                if (!finalIdeas.some((i) => i.title === idea.title))
+                  finalIdeas.push(idea);
+              }
+            } else {
+              finalIdeas = processedIdeas.slice(0, 10);
+            }
+
+            const output = finalIdeas.map(({ title, hook, angle, format }) => ({
+              title,
+              hook,
+              angle,
+              format,
+            }));
+
+            loadingState.style.display = "none";
+            if (output.length > 0) {
+              output.forEach((idea) =>
+                ideasList.appendChild(createIdeaCard(idea))
+              );
+              jsonCode.textContent = JSON.stringify(
+                { top_10_ideas: output },
+                null,
+                2
+              );
+              jsonOutputContainer.classList.remove("hidden");
+            } else {
+              ideasList.innerHTML = `<p class="text-center text-gray-400">The AI couldn't find unique ideas for this keyword. Try being more specific or adjusting the settings.</p>`;
+            }
+          } catch (error) {
+            console.error("Generation failed:", error);
+            handleGenerationError(
+              "Sorry, something went wrong while generating ideas. Please try again."
+            );
+          } finally {
+            generateButton.disabled = false;
+            generateButton.innerHTML = "Generate 10 Ideas";
+          }
+        };
+
+        // --- EVENT LISTENERS ---
+        generateButton.addEventListener("click", handleGenerate);
+        jsonToggleButton.addEventListener("click", () => {
+          jsonViewer.classList.toggle("hidden");
+          jsonChevron.classList.toggle("rotate-180");
+        });
+      });
+    </script>
+  </body>
+</html>
